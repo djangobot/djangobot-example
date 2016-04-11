@@ -1,0 +1,8 @@
+asgi-redis==0.10.0
+channels==0.10.3
+daphne==0.10.1
+Django==1.9.4
+djangobot==0.1
+psycopg2==2.6.1
+pyOpenSSL==16.0.0
+redis==2.10.5

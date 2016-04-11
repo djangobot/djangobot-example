@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-3">
+          <form class="form"  id="chatform">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input class="form-control" id="username" placeholder="username" type="text">
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <input class="form-control" id="message" placeholder="Message" type="text">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Send message" />
+          </form>
+        </div>
+        <div class="col-xs-9">
+          <div class="jumobotron">
+            <h2>Welcome to Djangobot!</h2>
+          </div>
+          <table class="table table-striped" id="chat">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <tH>Client</th>
+                <th>User</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.min.js"></script>
+    <script type="text/javascript">
+
+			var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+			var chatsock = new WebSocket(ws_scheme + '://' + window.location.host + "/chat" + window.location.pathname);
+
+			chatsock.onmessage = function(message) {
+					var data = JSON.parse(message.data);
+					var chat = $("#chat tbody")
+					var ele = $('<tr></tr>');
+          if (data.type === "message") {
+            ele.append(
+                $("<td></td>").text(moment.unix(data.ts).format("LTS"))
+            )
+            ele.append(
+                $("<td></td>").text(data.client)
+            )
+            ele.append(
+                $("<td></td>").text(data.user)
+            )
+            ele.append(
+                $("<td></td>").text(data.text)
+            )
+
+            chat.append(ele)
+          }
+			};
+
+			$("#chatform").on("submit", function(event) {
+          event.preventDefault();
+					var message = {
+              ts: Date.now() / 1000,
+              type: "message",
+							user: $('#username').val(),
+							text: $('#message').val(),
+              client: 'web',
+					}
+					chatsock.send(JSON.stringify(message));
+					$("#message").val('').focus();
+					return false;
+			});
+		</script>
+  </body>
+</html>
